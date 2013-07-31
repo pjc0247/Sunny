@@ -12,23 +12,23 @@ class CloudyButton < WindowButton
 		@img = @@frame
 		@text = text
 
-		@alpha = 120
+		@alpha = 255
 	end
 
 	def draw(x,y)
 		if @state == NONE
-            @alpha = 120
+            @img.alpha = 0.5 * @alpha
         elsif @state == HOT
-            @alpha = 150
+            @img.alpha = 0.65 * @alpha
         elsif @state == DOWN
-            @alpha = 180
+            @img.alpha = 0.8 * @alpha
         end
 
-		@img.alpha = @alpha
 	    @img.stretch(@x,@y,@w,@h)
 
 		size = @@font.query(@text)
 
+		@@font.alpha = @alpha
         @@font.draw x+@w/2-size.w/2,y+@h/2-size.h/2,@text
 	end
 end

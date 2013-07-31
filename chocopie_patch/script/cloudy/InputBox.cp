@@ -10,6 +10,10 @@ class InputBox < WindowBase
     @@font = Font.new("gulim.ttc",20)
     @@font.style = BOLD
 
+	@@frame = Sprite.new("cloudy\\inputbox.png")
+	@@frame.blend = BLEND
+	@@frame.colorkey = Color.Red
+
     def initialize(x,y,w,h)
         super(x,y,w,h)
 
@@ -42,13 +46,13 @@ class InputBox < WindowBase
     end
     def draw(x=0,y=0)
         if @state == NONE
-            $graphic.color = Color.new(255,255,255,255)
+            @@frame.color = Color.new(255,255,255)
         elsif @state == EDIT
-            $graphic.color = Color.new(230,230,230,255)
+            @@frame.color = Color.new(230,230,230)
         end
 
-        $graphic.blend = BLEND
-        $graphic.fill(x,y,@w,@h)
+		@@frame.alpha = @alpha
+        @@frame.stretch(x,y,@w,@h)
         if @text.length == 0
             drawText(5,5, @default,
                     Color.new(30,30,30),Color.DarkGray)
