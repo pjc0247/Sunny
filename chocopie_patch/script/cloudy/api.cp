@@ -1,3 +1,9 @@
+#
+# Cloudy Client-side API binding
+#
+#                    written by pjc0247
+#
+
 require 'Win32API'
 
 CLOUDY_DLL_PATH = "extension\\Cloudy-Ruby.dll"
@@ -10,4 +16,7 @@ def CloudyConnect(ip, port)
 end
 def CloudyLogin(id, pw)
 	$cloudy_login.Call(id, pw)
+end
+def CloudyRegist(id, pw, nick)
+	
 end
