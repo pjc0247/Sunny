@@ -2,6 +2,7 @@
 
 import 'cloudy/InputBox.cp'
 import 'cloudy/Button.cp'
+import 'cloudy/Toast.cp'
 
 import 'cloudy/api.cp'
 
@@ -68,6 +69,17 @@ class CloudyLogin < WindowBase
 		@ani = 0
 		@aniDir = 0
 		@alpha = 140
+
+		@shakeTick = 0
+		@shakeDuration = 0
+		@shakeDir = 1
+		@originalPos = Array.new
+
+		@originalPos.push Point.new(@x,@y)
+
+		$layerInterface.o.each do |key|
+			@originalPos.push Point.new(key.x, key.y)
+		end
 	end
 	def dispose
 		super
@@ -98,6 +110,33 @@ class CloudyLogin < WindowBase
 	def update
 		super
 		
+		if @shakeTick > 0
+			if getTicks - @shakeTick >= @shakeDuration
+				@shakeTick = 0
+				@shakeDuration = 0
+
+				for i in 0..$layerInterface.size-1
+					$layerInterface.o[i].x = @originalPos[i+1].x
+					$layerInterface.o[i].y = @originalPos[i+1].y
+				end
+	
+				@x = @originalPos[0].x
+				@y = @originalPos[0].y
+			else				
+				sx =  4 * @shakeDir
+				sy =  0 * @shakeDir
+				@shakeDir *= -1
+
+				$layerInterface.o.each do |key|
+					key.x += sx
+					key.y += sy
+				end
+
+				@x += sx
+				@y += sy
+			end
+		end
+
 		if @state == "regist"
 			if @aniDir != 0
 				@ani += @aniDir
@@ -133,14 +172,22 @@ class CloudyLogin < WindowBase
 
 	def close(target, args)
 		dispose
-	end
+	end	
 	def login(target, args)
-		CloudyConnect("127.0.0.1", 9919)
-		CloudyLogin(@id.text, @pw.text)
+		if @id.text.length < 6 or @pw.text.length < 6
+			shake 200
+		else
+			if CloudyConnect("127.0.0.1", 9919) == 0
+				CloudyToast.new("Cannot connect to server")
+				return
+			end
+			
+#			CloudyLogin(@id.text, @pw.text)
 
-		@loginedHandler.call self, @id.text
+			@loginedHandler.call self, @id.text
 		
-		dispose
+			dispose
+		end
 	end
 	def about(target, args)
 		if @state == "info"
@@ -185,11 +232,15 @@ class CloudyLogin < WindowBase
 			@btnRegist.buttonPressedHandler = method(:doRegist)
 		end
 	end
-
 	
 	# 실제로 네트워크로 회원가입을 진행하는 콜백
 	def doRegist(target, args)
-		
+	end
+
+
+	def shake(duration)
+		@shakeTick = getTicks
+		@shakeDuration = duration
 	end
 
 	def initializeHandler
